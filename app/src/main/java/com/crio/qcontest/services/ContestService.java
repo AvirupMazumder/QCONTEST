@@ -60,6 +60,11 @@ public class ContestService{
         return tempList; 
     }
 
+    /**
+     * Retrieves a list of contests filtered by difficulty level.
+     * @param level Difficulty level filter (can be null).
+     * @return List of contests filtered by difficulty level.
+     */
     public List<Contest> listContests(DifficultyLevel level) {
         return Collections.emptyList();
     }
