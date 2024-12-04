@@ -34,6 +34,11 @@ public class User {
     // 2) Throw a Runtime Exception with an appropriate message for invalid score.
 
     public void modifyScore(Integer score){
+        if(score < 0) {
+            throw new RuntimeException("User cannot have negative score");
+        } else {
+            totalScore = score;
+        }
     }
 
     @Override
