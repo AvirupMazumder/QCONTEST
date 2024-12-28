@@ -5,7 +5,8 @@ import java.io.FileReader;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
-
+import com.crio.qcontest.appConfig.Configuration;
+import com.crio.qcontest.commands.CommandRegistry;
 import com.crio.qcontest.constants.UserOrder;
 import com.crio.qcontest.entities.Contest;
 import com.crio.qcontest.entities.Contestant;
@@ -36,6 +37,8 @@ public class QcontestApplication {
 
     public static void run(List<String> commandLineArgs){
 		// Initialize repositories
+        //Commented for implementing Command line design instead of Vanilla design
+        /*
         IUserRepository userRepository = new UserRepository();
 		IQuestionRepository questionRepository = new QuestionRepository();
         IContestRepository contestRepository = new ContestRepository();
@@ -46,7 +49,9 @@ public class QcontestApplication {
         UserService userService = new UserService(userRepository);
         QuestionService questionService = new QuestionService(questionRepository);
         ContestService contestService = new ContestService(contestantRepository, contestRepository, questionRepository, userRepository);
-
+        */
+        Configuration configuration = Configuration.getInstance();
+        CommandRegistry commandRegistry = configuration.getCommandList();
         
         String inputFile = commandLineArgs.get(0).split("=")[1];
 
@@ -57,127 +62,7 @@ public class QcontestApplication {
                     break;
                 }
                 List<String> tokens = Arrays.asList(line.split(" "));
-
-                // Execute Services
-                switch(tokens.get(0)){
-					case "CREATE_USER":
-					{
-                        String userName = tokens.get(1);
-                        User user = userService.createUser(userName);
-                        System.out.println(user);                
-					}
-					break;
-
-                    case "CREATE_QUESTION":
-					{
-						String title = tokens.get(1);
-						String level = tokens.get(2);
-						Integer score = Integer.parseInt(tokens.get(3));
-						Question question = questionService.createQuestion(title, Level.valueOf(level),score);
-						System.out.println(question);
-					}
-                    break;
-
-                    case "LIST_QUESTION":
-					{
-						if(tokens.size() == 1){
-
-							List<Question> qList = questionService.getQuestions(null);
-							System.out.println(qList);
-
-						}else if(tokens.size() == 2){
-
-                            String level = tokens.get(1);
-						    List<Question> qList = questionService.getQuestions(Level.valueOf(level));
-						    System.out.println(qList);
-
-                        }
-					}
-                    break;
-
-					case "CREATE_CONTEST":
-					{
-                        String contestName = tokens.get(1);
-                        String level = tokens.get(2);
-                        String creatorName = tokens.get(3);
-                        Integer numQuestion = Integer.parseInt(tokens.get(4));
-                        Contest contest = contestService.createContest(contestName,Level.valueOf(level), creatorName,numQuestion);
-                        System.out.println(contest);
-					}
-					break;
-
-					case "LIST_CONTEST":
-					{
-                        if(tokens.size() == 1){
-
-                            List<Contest> qList = contestService.getContests(null);
-                            System.out.println(qList);
-
-                        }else if(tokens.size() == 2){
-
-                            String level = tokens.get(1);
-                            List<Contest> qList = contestService.getContests(Level.valueOf(level));
-                            System.out.println(qList);
-                            
-                        }                
-					}
-					break;
-
-					case "ATTEND_CONTEST":
-					{
-                        Long contestId = Long.parseLong(tokens.get(1));
-                        String userName = tokens.get(2);
-                        Contestant contestant = contestService.createContestant(contestId, userName);
-                        System.out.println(contestant); 
-					}
-					break;
-
-					case "WITHDRAW_CONTEST":
-					{
-                        Long contestId = Long.parseLong(tokens.get(1));
-                        String userName = tokens.get(2);
-                        String message = contestService.deleteContestant(contestId, userName);
-                        System.out.println(message);
-					}
-					break;
-
-					case "RUN_CONTEST":
-					{
-                        Long contestId = Long.parseLong(tokens.get(1));
-                        String contestCreator = tokens.get(2);
-                        List<Contestant> contestants = contestService.runContest(contestId, contestCreator);
-                        System.out.println(contestants);
-					}
-					break;
-
-					case "CONTEST_HISTORY":
-					{
-                        Long contestId = Long.parseLong(tokens.get(1));
-                        List<Contestant> contestants = contestService.contestHistory(contestId);
-                        System.out.println(contestants);
-					}
-					break;
-
-					case "LEADERBOARD":
-					{
-                        String order = tokens.get(1);
-                        List<User> uList = userService.getUsers(UserOrder.valueOf("SCORE_"+order));
-                        System.out.print("[");
-                        for(int  i=0; i < uList.size(); i++){
-                            if(i == (uList.size()-1)){
-                                System.out.print("User [id=" + uList.get(i).getId() + ", totalScore=" + uList.get(i).getTotalScore() + "]"); 
-                            }else{
-                                System.out.print("User [id=" + uList.get(i).getId() + ", totalScore=" + uList.get(i).getTotalScore() + "], ");
-                            }
-                        }
-                        System.out.print("]");
-					}
-					break;
-
-
-                    default:
-                        throw new RuntimeException("Invalid Command");
-                }
+                commandRegistry.invokeCommand(tokens);
             }
             reader.close();
         } catch (Exception e) {
