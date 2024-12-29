@@ -33,3 +33,4 @@ QContest is an online coding platform with the following features:
 
 Let’s visualize the relationship between the classes as given below
 
+<img src="Class Relationship Diagram.png" alt="Description of Image" width="500">
